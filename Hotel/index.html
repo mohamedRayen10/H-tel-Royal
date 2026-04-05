@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0d0a">
+<title>Hôtel Royal — Restaurant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── VARIABLES ───────────────────────────────────────────────────────────── */
+:root{
+  --bg:#0f0d0a; --surface:#1a1713; --surface2:#231f1a; --surface3:#2a2520;
+  --border:#2e2a24; --border2:#3a3530;
+  --gold:#c9a84c; --gold-light:#e8c97a; --gold-dim:rgba(201,168,76,.15);
+  --cream:#f5edd9; --text:#e8dcc8; --muted:#8a7d68;
+  --libre:#3d7a5a; --libre-bg:#1a3328; --libre-t:#6ecf9e;
+  --occupee:#8b3a3a; --occupee-bg:#3d1a1a; --occupee-t:#e88a8a;
+  --reservee:#4a5c8a; --reservee-bg:#1a2340; --reservee-t:#8a9ecc;
+  --nettoyage:#7a5c2a; --nettoyage-bg:#3d2d10; --nettoyage-t:#e8b870;
+  --depart:#7a3a7a; --depart-bg:#3d1a3d; --depart-t:#e88ae8;
+  --nav-h:60px; --hdr-h:56px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100%;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(201,168,76,.04) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(201,168,76,.03) 0%,transparent 50%);pointer-events:none;z-index:0;}
+
+/* ─── SVG ICONS ───────────────────────────────────────────────────────────── */
+svg use{pointer-events:none;}
+
+/* ─── HEADER ──────────────────────────────────────────────────────────────── */
+header{
+  position:sticky;top:0;z-index:90;
+  background:rgba(15,13,10,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  height:var(--hdr-h);padding:0 1rem;
+}
+.hdr{max-width:1500px;margin:0 auto;height:100%;display:flex;align-items:center;gap:1rem;}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--cream);white-space:nowrap;}
+.logo-text span{color:var(--gold);}
+.logo-sub{font-size:.58rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.hdr-stats{display:flex;gap:1.2rem;align-items:center;flex:1;justify-content:center;}
+.stat-item{text-align:center;}
+.stat-val{font-size:1.2rem;font-weight:700;font-family:'Playfair Display',serif;line-height:1;}
+.stat-lbl{font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:1px;}
+.stat-div{width:1px;height:24px;background:var(--border);}
+.hdr-right{display:flex;align-items:center;gap:.75rem;flex-shrink:0;}
+.date-pill{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px 10px;text-align:center;}
+.date-day{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.date-full{font-size:.58rem;color:var(--muted);text-transform:capitalize;}
+#clock{font-size:.75rem;color:var(--muted);}
+
+/* ─── LAYOUT ──────────────────────────────────────────────────────────────── */
+.app{
+  max-width:1500px;margin:0 auto;padding:1.25rem;
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:250px 1fr;gap:1.25rem;align-items:start;
+  padding-bottom:calc(1.25rem + var(--nav-h) + var(--safe-b));
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────────────────── */
+.sidebar{position:sticky;top:calc(var(--hdr-h) + 12px);display:flex;flex-direction:column;gap:1rem;max-height:calc(100vh - var(--hdr-h) - 24px);overflow-y:auto;padding-right:2px;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sb{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.sb-title{padding:.75rem 1rem .6rem;font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.leg-list{padding:.6rem .9rem;display:flex;flex-direction:column;gap:.3rem;}
+.leg{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text);cursor:pointer;padding:5px 6px;border-radius:7px;transition:background .15s;}
+.leg:hover,.leg.active{background:var(--surface2);}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg-count{margin-left:auto;font-size:.7rem;color:var(--muted);font-weight:600;}
+.zone-list{padding:.5rem;display:flex;flex-direction:column;gap:.3rem;}
+.zone-btn{padding:7px 10px;border-radius:7px;background:transparent;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:center;gap:7px;width:100%;}
+.zone-btn:hover{background:var(--surface2);color:var(--text);}
+.zone-btn.active{background:var(--gold-dim);color:var(--gold);}
+.zone-btn svg,.zone-btn.active svg{stroke:currentColor;}
+.qa{padding:.5rem;display:flex;flex-direction:column;gap:.4rem;}
+.btn-qa{width:100%;padding:8px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px;}
+.btn-qa:hover{border-color:var(--gold);color:var(--gold);}
+.btn-qa:hover svg{stroke:var(--gold);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0f0d0a;border-color:transparent;font-weight:700;}
+.btn-gold:hover{opacity:.9;color:#0f0d0a;}
+.btn-gold svg{stroke:#0f0d0a;}
+.dep-list{padding:.6rem .9rem;display:flex;flex-direction:column;gap:.4rem;max-height:160px;overflow-y:auto;}
+.dep-item{display:flex;align-items:center;gap:7px;padding:6px 8px;background:rgba(122,58,122,.15);border:1px solid rgba(232,138,232,.2);border-radius:8px;cursor:pointer;}
+.dep-badge{width:26px;height:26px;border-radius:6px;background:var(--depart-bg);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.7rem;font-weight:700;color:var(--depart-t);flex-shrink:0;}
+.dep-info{flex:1;min-width:0;}
+.dep-name{font-size:.77rem;font-weight:600;color:var(--depart-t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dep-room{font-size:.65rem;color:var(--muted);display:flex;align-items:center;gap:3px;}
+.dep-empty{padding:.7rem .9rem;font-size:.78rem;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;}
+
+/* ─── MAIN ────────────────────────────────────────────────────────────────── */
+.main{display:flex;flex-direction:column;gap:1.25rem;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--cream);}
+.sec-sub{font-size:.74rem;color:var(--muted);margin-top:2px;}
+.search-wrap{position:relative;display:flex;align-items:center;}
+.search-wrap svg{position:absolute;left:10px;stroke:var(--muted);pointer-events:none;}
+.search-inp{padding:8px 12px 8px 32px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;transition:border-color .15s;width:210px;}
+.search-inp:focus{border-color:var(--gold);}
+.search-inp::placeholder{color:var(--muted);}
+
+/* ─── FLOOR PLAN ──────────────────────────────────────────────────────────── */
+.floor{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.25rem;position:relative;overflow:hidden;}
+.floor::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.22;}
+.tgrid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.85rem;}
+
+/* ─── TABLE CARD ──────────────────────────────────────────────────────────── */
+.tc{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:.75rem .6rem;cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;user-select:none;-webkit-user-select:none;}
+.tc:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 6px 24px rgba(0,0,0,.4);}
+.tc:active{transform:scale(.95);}
+.tc.libre{border-color:var(--libre);background:linear-gradient(135deg,var(--libre-bg),rgba(61,122,90,.04));}
+.tc.occupee{border-color:var(--occupee);background:linear-gradient(135deg,var(--occupee-bg),rgba(139,58,58,.04));}
+.tc.reservee{border-color:var(--reservee);background:linear-gradient(135deg,var(--reservee-bg),rgba(74,92,138,.04));}
+.tc.nettoyage{border-color:var(--nettoyage);background:linear-gradient(135deg,var(--nettoyage-bg),rgba(122,92,42,.04));}
+.tc.depart-today{border-color:var(--depart);background:linear-gradient(135deg,var(--depart-bg),rgba(122,58,122,.04));animation:glow-dep 2s infinite;}
+@keyframes glow-dep{0%,100%{box-shadow:0 0 0 rgba(232,138,232,0);}50%{box-shadow:0 0 12px rgba(232,138,232,.25);}}
+.sdot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;}
+.tc.libre .sdot{background:var(--libre);box-shadow:0 0 5px var(--libre);}
+.tc.occupee .sdot{background:var(--occupee);box-shadow:0 0 5px var(--occupee);animation:blink 2s infinite;}
+.tc.reservee .sdot{background:var(--reservee);box-shadow:0 0 5px var(--reservee);}
+.tc.nettoyage .sdot{background:var(--nettoyage);box-shadow:0 0 5px var(--nettoyage);}
+.tc.depart-today .sdot{background:var(--depart);box-shadow:0 0 5px var(--depart);}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.4);}}
+.dep-flag{position:absolute;top:7px;left:7px;font-size:.52rem;background:var(--depart-bg);border:1px solid var(--depart);color:var(--depart-t);padding:2px 4px;border-radius:4px;font-weight:700;letter-spacing:.05em;display:flex;align-items:center;gap:2px;}
+.t-zic{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.04);}
+.t-num{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--cream);}
+.t-cap{font-size:.6rem;color:var(--muted);display:flex;align-items:center;gap:3px;}
+.t-cli{font-size:.63rem;text-align:center;line-height:1.3;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tc.libre .t-cli{color:var(--libre-t);}
+.tc.occupee .t-cli{color:var(--occupee-t);}
+.tc.reservee .t-cli{color:var(--reservee-t);}
+.tc.nettoyage .t-cli{color:var(--nettoyage-t);}
+.tc.depart-today .t-cli{color:var(--depart-t);}
+.t-dates{font-size:.56rem;color:var(--muted);text-align:center;display:flex;align-items:center;gap:2px;}
+
+/* ─── PANELS ──────────────────────────────────────────────────────────────── */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.panel-hdr{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--cream);display:flex;align-items:center;gap:7px;}
+.ctable{width:100%;border-collapse:collapse;}
+.ctable th{padding:7px 12px;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
+.ctable td{padding:8px 12px;font-size:.8rem;border-bottom:1px solid rgba(46,42,36,.4);vertical-align:middle;}
+.ctable tr:last-child td{border-bottom:none;}
+.ctable tr:hover td{background:rgba(35,31,26,.6);}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.badge-libre{background:var(--libre-bg);color:var(--libre-t);border:1px solid var(--libre);}
+.badge-occupee{background:var(--occupee-bg);color:var(--occupee-t);border:1px solid var(--occupee);}
+.badge-reservee{background:var(--reservee-bg);color:var(--reservee-t);border:1px solid var(--reservee);}
+.badge-nettoyage{background:var(--nettoyage-bg);color:var(--nettoyage-t);border:1px solid var(--nettoyage);}
+.badge-depart{background:var(--depart-bg);color:var(--depart-t);border:1px solid var(--depart);}
+.tact-btn{padding:4px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:.7rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:4px;}
+.tact-btn:hover{border-color:var(--gold);color:var(--gold);}
+.tact-btn:hover svg{stroke:var(--gold);}
+.empty-row td{text-align:center;color:var(--muted);padding:1.75rem !important;}
+.nights-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:5px;padding:2px 7px;font-size:.67rem;color:var(--gold);font-weight:600;}
+.act-list{padding:.7rem;display:flex;flex-direction:column;gap:.4rem;max-height:220px;overflow-y:auto;}
+.act-list::-webkit-scrollbar{width:3px;}
+.act-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.act-item{display:flex;align-items:center;gap:9px;padding:7px 10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:translateX(0);}}
+.act-tb{width:28px;height:28px;border-radius:6px;background:var(--gold-dim);border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;}
+.act-d{flex:1;min-width:0;}
+.act-n{font-size:.79rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.act-t{font-size:.67rem;color:var(--muted);display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
+.act-time{font-size:.75rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif;flex-shrink:0;}
+
+/* ─── MODAL ───────────────────────────────────────────────────────────────── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:1.5rem;width:420px;max-width:96vw;max-height:88vh;overflow-y:auto;transform:scale(.95) translateY(16px);transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.mo.open .modal{transform:scale(1) translateY(0);}
+.modal::-webkit-scrollbar{width:3px;}
+.modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;}
+.mt{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--cream);display:flex;align-items:center;gap:7px;}
+.mc{width:30px;height:30px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.mc svg{stroke:var(--muted);}
+.mc:hover svg{stroke:var(--text);}
+.sec-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
+.ssel{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:1.1rem;}
+.sopt{padding:9px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;font-size:.76rem;font-family:'DM Sans',sans-serif;color:var(--muted);display:flex;flex-direction:column;gap:4px;align-items:center;}
+.sopt:hover{border-color:var(--muted);}
+.sopt.sel-libre{border-color:var(--libre);color:var(--libre-t);background:var(--libre-bg);}
+.sopt.sel-libre svg{stroke:var(--libre-t);}
+.sopt.sel-occupee{border-color:var(--occupee);color:var(--occupee-t);background:var(--occupee-bg);}
+.sopt.sel-occupee svg{stroke:var(--occupee-t);}
+.sopt.sel-reservee{border-color:var(--reservee);color:var(--reservee-t);background:var(--reservee-bg);}
+.sopt.sel-reservee svg{stroke:var(--reservee-t);}
+.sopt.sel-nettoyage{border-color:var(--nettoyage);color:var(--nettoyage-t);background:var(--nettoyage-bg);}
+.sopt.sel-nettoyage svg{stroke:var(--nettoyage-t);}
+.div{height:1px;background:var(--border);margin:.9rem 0;}
+.fg{margin-bottom:.8rem;}
+.fl{font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.fi{width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;transition:border-color .15s;}
+.fi:focus{border-color:var(--gold);}
+.fi::placeholder{color:var(--muted);}
+.fi[type="date"]{color-scheme:dark;}
+.fi[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5) sepia(1) saturate(.5);}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.hotel-box{background:var(--gold-dim);border:1px solid rgba(201,168,76,.3);border-radius:9px;padding:.7rem .9rem;margin-bottom:.8rem;}
+.hotel-row{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;margin-bottom:3px;}
+.hotel-row span:first-child{color:var(--muted);display:flex;align-items:center;gap:4px;}
+.hotel-row span:last-child{color:var(--gold);font-weight:600;}
+.warn-box{background:rgba(139,58,58,.15);border:1px solid rgba(139,58,58,.4);border-radius:8px;padding:.55rem .85rem;font-size:.76rem;color:var(--occupee-t);margin-bottom:.8rem;display:flex;align-items:flex-start;gap:6px;}
+.ma{display:flex;gap:.6rem;margin-top:1.2rem;}
+.btn-m{flex:1;padding:10px 8px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-m:hover{border-color:var(--muted);}
+.btn-mp{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0f0d0a;border-color:transparent;font-weight:700;}
+.btn-mp:hover{opacity:.9;color:#0f0d0a;}
+.btn-mp svg{stroke:#0f0d0a;}
+.btn-danger{background:rgba(139,58,58,.22);border-color:var(--occupee);color:var(--occupee-t);}
+.btn-danger svg{stroke:var(--occupee-t);}
+
+/* ─── TOAST ───────────────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--gold);border-radius:12px;padding:10px 16px;font-size:.82rem;color:var(--text);z-index:999;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;max-width:92vw;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ─── BOTTOM NAV (mobile) ─────────────────────────────────────────────────── */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:90;
+  height:calc(var(--nav-h) + var(--safe-b));
+  padding-bottom:var(--safe-b);
+  background:rgba(15,13,10,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--border);
+}
+.bnav-inner{display:flex;height:var(--nav-h);align-items:stretch;}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 4px;transition:all .15s;}
+.bnav-btn svg{stroke:var(--muted);transition:stroke .15s;}
+.bnav-btn span{font-size:.58rem;color:var(--muted);font-family:'DM Sans',sans-serif;letter-spacing:.02em;transition:color .15s;}
+.bnav-btn.active svg{stroke:var(--gold);}
+.bnav-btn.active span{color:var(--gold);}
+.bnav-sep{width:1px;background:var(--border);margin:10px 0;}
+
+/* ─── DRAWER (mobile sidebar) ────────────────────────────────────────────── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;opacity:0;pointer-events:none;transition:opacity .25s;}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:min(300px,90vw);background:var(--bg);border-right:1px solid var(--border);z-index:160;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:1rem;padding-bottom:calc(1rem + var(--safe-b));display:flex;flex-direction:column;gap:1rem;}
+.drawer.open{transform:translateX(0);}
+.drawer-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
+.drawer-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);}
+.drawer-close{width:32px;height:32px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.drawer-close svg{stroke:var(--muted);}
+
+/* ─── MOBILE VIEW SWITCHING ───────────────────────────────────────────────── */
+.view{display:none;}
+.view.active{display:block;}
+
+/* ─── MOBILE STATS BAR ───────────────────────────────────────────────────── */
+.mob-stats{display:none;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-bottom:1rem;}
+.mob-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.5rem .25rem;text-align:center;}
+.mob-stat-val{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;line-height:1;}
+.mob-stat-lbl{font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+
+/* ─── FAB (mobile add button) ────────────────────────────────────────────── */
+.fab{display:none;position:fixed;right:1rem;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);z-index:85;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;cursor:pointer;box-shadow:0 4px 18px rgba(201,168,76,.4);align-items:center;justify-content:center;transition:transform .2s;}
+.fab:active{transform:scale(.92);}
+.fab svg{stroke:#0f0d0a;}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────────────────── */
+
+/* Tablet 768-1023 */
+@media(max-width:1023px){
+  .app{grid-template-columns:1fr;padding-left:1rem;padding-right:1rem;}
+  .sidebar{display:none;}
+  .hdr-stats{display:none;}
+  .bottom-nav{display:flex;flex-direction:column;}
+  .fab{display:flex;}
+  .mob-stats{display:grid;}
+  .toast{bottom:calc(var(--nav-h) + var(--safe-b) + 12px);}
+}
+
+/* Mobile ≤ 480 */
+@media(max-width:480px){
+  header{padding:0 .75rem;}
+  .logo-sub{display:none;}
+  .hdr-right{gap:.5rem;}
+  #clock{display:none;}
+  .app{padding:.75rem;gap:1rem;padding-bottom:calc(.75rem + var(--nav-h) + var(--safe-b) + 60px);}
+  .tgrid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.65rem;}
+  .floor{padding:1rem .85rem;}
+  .sec-hdr{flex-direction:column;align-items:flex-start;}
+  .search-inp{width:100%;}
+  .search-wrap{width:100%;}
+  .mob-stats{grid-template-columns:repeat(3,1fr);}
+  .mob-stats .stat-d{display:none;}
+  /* Modal full-screen on small phones */
+  .modal{width:100%;max-width:100%;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:92vh;transform:translateY(100%);}
+  .mo.open .modal{transform:translateY(0);}
+  .mo{align-items:flex-end;}
+  /* Clients table scroll */
+  .ctable th,.ctable td{padding:6px 9px;font-size:.75rem;}
+}
+
+/* Wide screens */
+@media(min-width:1200px){
+  .app{grid-template-columns:260px 1fr;}
+}
+@media(min-width:1400px){
+  .hdr-stats{gap:1.8rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── SVG DEFS ─────────────────────────────────────────────────────────── -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="ic-hotel" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V5a2 2 0 012-2h14a2 2 0 012 2v16"/><path d="M3 21h18"/><path d="M9 21V12h6v9"/><rect x="9" y="6" width="2" height="2"/><rect x="13" y="6" width="2" height="2"/></symbol>
+    <symbol id="ic-utensils" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></symbol>
+    <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></symbol>
+    <symbol id="ic-calendar" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="ic-sparkles" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.4L19.2 9l-4.5 3.6 1.5 5.4L12 15l-4.2 3 1.5-5.4L4.8 9l5.4-.6z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></symbol>
+    <symbol id="ic-logout" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+    <symbol id="ic-zap" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></symbol>
+    <symbol id="ic-unlock" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="ic-key" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></symbol>
+    <symbol id="ic-floor" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="18" width="18" height="3" rx="1"/><path d="M12 14V4M8 8l4-4 4 4"/></symbol>
+    <symbol id="ic-save" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="ic-list" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+    <symbol id="ic-moon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="ic-grid" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></symbol>
+    <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="ic-star" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="ic-note" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+  </defs>
+</svg>
+
+<!-- ─── HEADER ────────────────────────────────────────────────────────────── -->
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-icon"><svg width="18" height="18" style="stroke:#0f0d0a"><use href="#ic-hotel"/></svg></div>
+      <div>
+        <div class="logo-text">Hôtel <span>Royal</span></div>
+        <div class="logo-sub">Restaurant</div>
+      </div>
+    </div>
+
+    <div class="hdr-stats">
+      <div class="stat-item"><div class="stat-val" id="s-total" style="color:var(--gold)">16</div><div class="stat-lbl">Tables</div></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><div class="stat-val" id="s-occupee" style="color:var(--occupee-t)">0</div><div class="stat-lbl">Occupées</div></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><div class="stat-val" id="s-libre" style="color:var(--libre-t)">16</div><div class="stat-lbl">Libres</div></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><div class="stat-val" id="s-reservee" style="color:var(--reservee-t)">0</div><div class="stat-lbl">Réservées</div></div>
+      <div class="stat-div"></div>
+      <div class="stat-item"><div class="stat-val" id="s-depart" style="color:var(--depart-t)">0</div><div class="stat-lbl">Départs</div></div>
+    </div>
+
+    <div class="hdr-right">
+      <div class="date-pill">
+        <div class="date-day" id="hdr-day">—</div>
+        <div class="date-full" id="hdr-date">—</div>
+      </div>
+      <div id="clock"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ─── APP ───────────────────────────────────────────────────────────────── -->
+<div class="app">
+
+  <!-- SIDEBAR (desktop) -->
+  <aside class="sidebar" id="desktopSidebar">
+    <div class="sb">
+      <div class="sb-title"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-grid"/></svg> Statut</div>
+      <div class="leg-list">
+        <div class="leg active" onclick="filterStatus('all',this)"><span style="width:8px;height:8px;border-radius:2px;background:var(--muted);display:block;flex-shrink:0"></span>Toutes<span class="leg-count" id="c-all">16</span></div>
+        <div class="leg" onclick="filterStatus('libre',this)"><span class="leg-dot" style="background:var(--libre)"></span>Libre<span class="leg-count" id="c-libre">16</span></div>
+        <div class="leg" onclick="filterStatus('occupee',this)"><span class="leg-dot" style="background:var(--occupee)"></span>Occupée<span class="leg-count" id="c-occupee">0</span></div>
+        <div class="leg" onclick="filterStatus('reservee',this)"><span class="leg-dot" style="background:var(--reservee)"></span>Réservée<span class="leg-count" id="c-reservee">0</span></div>
+        <div class="leg" onclick="filterStatus('nettoyage',this)"><span class="leg-dot" style="background:var(--nettoyage)"></span>Nettoyage<span class="leg-count" id="c-nettoyage">0</span></div>
+        <div class="leg" onclick="filterStatus('depart',this)"><span class="leg-dot" style="background:var(--depart)"></span>Départ auj.<span class="leg-count" id="c-depart">0</span></div>
+      </div>
+    </div>
+    <div class="sb">
+      <div class="sb-title"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-layers"/></svg> Zones</div>
+      <div class="zone-list">
+        <button class="zone-btn active" onclick="filterZone('all',this)"><svg width="13" height="13"><use href="#ic-layers"/></svg>Toutes</button>
+        <button class="zone-btn" onclick="filterZone('salle',this)"><svg width="13" height="13"><use href="#ic-grid"/></svg>Salle principale</button>
+        <button class="zone-btn" onclick="filterZone('terrasse',this)"><svg width="13" height="13"><use href="#ic-sun"/></svg>Terrasse</button>
+        <button class="zone-btn" onclick="filterZone('vip',this)"><svg width="13" height="13"><use href="#ic-star"/></svg>Salon VIP</button>
+      </div>
+    </div>
+    <div class="sb">
+      <div class="sb-title" style="color:var(--depart-t)"><svg width="11" height="11" style="stroke:var(--depart-t)"><use href="#ic-logout"/></svg> Départs aujourd'hui</div>
+      <div id="dep-sb"></div>
+    </div>
+    <div class="sb">
+      <div class="sb-title"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-zap"/></svg> Actions</div>
+      <div class="qa">
+        <button class="btn-qa btn-gold" onclick="openAddTable()"><svg width="13" height="13"><use href="#ic-plus"/></svg>Nouvelle table</button>
+        <button class="btn-qa" onclick="autoCheckDeparts()"><svg width="13" height="13"><use href="#ic-refresh"/></svg>Vérifier départs</button>
+        <button class="btn-qa" onclick="markAllNettoyage()"><svg width="13" height="13"><use href="#ic-sparkles"/></svg>Marquer nettoyage</button>
+        <button class="btn-qa" onclick="resetAll()"><svg width="13" height="13"><use href="#ic-unlock"/></svg>Tout libérer</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="mainContent">
+
+    <!-- Mobile stats -->
+    <div class="mob-stats" id="mobStats">
+      <div class="mob-stat"><div class="mob-stat-val" id="ms-total" style="color:var(--gold)">16</div><div class="mob-stat-lbl">Total</div></div>
+      <div class="mob-stat"><div class="mob-stat-val" id="ms-libre" style="color:var(--libre-t)">16</div><div class="mob-stat-lbl">Libres</div></div>
+      <div class="mob-stat"><div class="mob-stat-val" id="ms-occupee" style="color:var(--occupee-t)">0</div><div class="mob-stat-lbl">Occup.</div></div>
+      <div class="mob-stat"><div class="mob-stat-val" id="ms-reservee" style="color:var(--reservee-t)">0</div><div class="mob-stat-lbl">Rés.</div></div>
+      <div class="mob-stat"><div class="mob-stat-val" id="ms-depart" style="color:var(--depart-t)">0</div><div class="mob-stat-lbl">Départs</div></div>
+    </div>
+
+    <!-- VIEW: Tables -->
+    <div class="view active" id="view-tables">
+      <div class="sec-hdr" style="margin-bottom:.85rem">
+        <div>
+          <div class="sec-title">Plan de Salle</div>
+          <div class="sec-sub">Touchez une table pour gérer le client</div>
+        </div>
+        <div class="search-wrap">
+          <svg width="13" height="13"><use href="#ic-search"/></svg>
+          <input type="text" class="search-inp" id="searchInput" placeholder="Client / chambre…" oninput="renderTables()">
+        </div>
+      </div>
+      <div class="floor">
+        <div class="tgrid" id="tablesGrid"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: Clients list -->
+    <div class="view" id="view-clients">
+      <div class="sec-hdr" style="margin-bottom:.85rem">
+        <div>
+          <div class="sec-title">Clients</div>
+          <div class="sec-sub" id="clients-count">0 client</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div style="overflow-x:auto;">
+          <table class="ctable">
+            <thead>
+              <tr>
+                <th>T.</th>
+                <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-user"/></svg>Client</th>
+                <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-key"/></svg>Ch.</th>
+                <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-calendar"/></svg>Arr.</th>
+                <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-logout"/></svg>Dép.</th>
+                <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-moon"/></svg>Nuits</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="clientsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Activity -->
+    <div class="view" id="view-activity">
+      <div class="sec-hdr" style="margin-bottom:.85rem">
+        <div>
+          <div class="sec-title">Activité</div>
+          <div class="sec-sub" id="act-count">0 événement</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="act-list" id="actList">
+          <div style="text-align:center;color:var(--muted);font-size:.82rem;padding:1.5rem 0">Aucune activité</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop: always show all views -->
+    <div id="desktopExtra" style="display:none;flex-direction:column;gap:1.25rem">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title"><svg width="15" height="15" style="stroke:var(--gold)"><use href="#ic-list"/></svg>Clients Hôtel</div>
+          <span style="font-size:.72rem;color:var(--muted)" id="clients-count-d">0 client</span>
+        </div>
+        <div style="overflow-x:auto;"><table class="ctable"><thead><tr>
+          <th>T.</th>
+          <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-user"/></svg>Client</th>
+          <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-key"/></svg>Chambre / Étage</th>
+          <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-calendar"/></svg>Arrivée</th>
+          <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-logout"/></svg>Départ</th>
+          <th><svg width="10" height="10" style="stroke:var(--muted);vertical-align:middle;margin-right:3px"><use href="#ic-moon"/></svg>Nuits</th>
+          <th>Statut</th><th>Action</th>
+        </tr></thead><tbody id="clientsBodyD"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title"><svg width="15" height="15" style="stroke:var(--gold)"><use href="#ic-clock"/></svg>Activité Récente</div>
+          <span style="font-size:.72rem;color:var(--muted)" id="act-count-d">0 événement</span>
+        </div>
+        <div class="act-list" id="actListD">
+          <div style="text-align:center;color:var(--muted);font-size:.82rem;padding:1.5rem 0">Aucune activité</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ─── BOTTOM NAV (mobile) ────────────────────────────────────────────────── -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bnav-inner">
+    <button class="bnav-btn active" id="bn-tables" onclick="switchView('tables',this)">
+      <svg width="20" height="20"><use href="#ic-utensils"/></svg>
+      <span>Tables</span>
+    </button>
+    <div class="bnav-sep"></div>
+    <button class="bnav-btn" id="bn-clients" onclick="switchView('clients',this)">
+      <svg width="20" height="20"><use href="#ic-users"/></svg>
+      <span>Clients</span>
+    </button>
+    <div class="bnav-sep"></div>
+    <button class="bnav-btn" id="bn-activity" onclick="switchView('activity',this)">
+      <svg width="20" height="20"><use href="#ic-clock"/></svg>
+      <span>Activité</span>
+    </button>
+    <div class="bnav-sep"></div>
+    <button class="bnav-btn" id="bn-menu" onclick="openDrawer()">
+      <svg width="20" height="20"><use href="#ic-menu"/></svg>
+      <span>Menu</span>
+    </button>
+  </div>
+</nav>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddTable()">
+  <svg width="22" height="22"><use href="#ic-plus"/></svg>
+</button>
+
+<!-- ─── DRAWER (mobile menu) ───────────────────────────────────────────────── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-hdr">
+    <div class="drawer-title">Menu</div>
+    <button class="drawer-close" onclick="closeDrawer()"><svg width="14" height="14"><use href="#ic-x"/></svg></button>
+  </div>
+
+  <div class="sb">
+    <div class="sb-title"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-grid"/></svg> Filtrer par statut</div>
+    <div class="leg-list">
+      <div class="leg active" onclick="filterStatus('all',this);closeDrawer()"><span style="width:8px;height:8px;border-radius:2px;background:var(--muted);display:block;flex-shrink:0"></span>Toutes<span class="leg-count" id="dc-all">16</span></div>
+      <div class="leg" onclick="filterStatus('libre',this);closeDrawer()"><span class="leg-dot" style="background:var(--libre)"></span>Libre<span class="leg-count" id="dc-libre">16</span></div>
+      <div class="leg" onclick="filterStatus('occupee',this);closeDrawer()"><span class="leg-dot" style="background:var(--occupee)"></span>Occupée<span class="leg-count" id="dc-occupee">0</span></div>
+      <div class="leg" onclick="filterStatus('reservee',this);closeDrawer()"><span class="leg-dot" style="background:var(--reservee)"></span>Réservée<span class="leg-count" id="dc-reservee">0</span></div>
+      <div class="leg" onclick="filterStatus('nettoyage',this);closeDrawer()"><span class="leg-dot" style="background:var(--nettoyage)"></span>Nettoyage<span class="leg-count" id="dc-nettoyage">0</span></div>
+      <div class="leg" onclick="filterStatus('depart',this);closeDrawer()"><span class="leg-dot" style="background:var(--depart)"></span>Départ auj.<span class="leg-count" id="dc-depart">0</span></div>
+    </div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-title"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-layers"/></svg> Zones</div>
+    <div class="zone-list">
+      <button class="zone-btn active" onclick="filterZone('all',this);closeDrawer()"><svg width="13" height="13"><use href="#ic-layers"/></svg>Toutes</button>
+      <button class="zone-btn" onclick="filterZone('salle',this);closeDrawer()"><svg width="13" height="13"><use href="#ic-grid"/></svg>Salle principale</button>
+      <button class="zone-btn" onclick="filterZone('terrasse',this);closeDrawer()"><svg width="13" height="13"><use href="#ic-sun"/></svg>Terrasse</button>
+      <button class="zone-btn" onclick="filterZone('vip',this);closeDrawer()"><svg width="13" height="13"><use href="#ic-star"/></svg>Salon VIP</button>
+    </div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-title" style="color:var(--depart-t)"><svg width="11" height="11" style="stroke:var(--depart-t)"><use href="#ic-logout"/></svg> Départs aujourd'hui</div>
+    <div id="dep-drawer"></div>
+  </div>
+
+  <div class="sb">
+    <div class="sb-title"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-zap"/></svg> Actions rapides</div>
+    <div class="qa">
+      <button class="btn-qa btn-gold" onclick="openAddTable();closeDrawer()"><svg width="13" height="13"><use href="#ic-plus"/></svg>Nouvelle table</button>
+      <button class="btn-qa" onclick="autoCheckDeparts();closeDrawer()"><svg width="13" height="13"><use href="#ic-refresh"/></svg>Vérifier départs</button>
+      <button class="btn-qa" onclick="markAllNettoyage();closeDrawer()"><svg width="13" height="13"><use href="#ic-sparkles"/></svg>Marquer nettoyage</button>
+      <button class="btn-qa" onclick="resetAll();closeDrawer()"><svg width="13" height="13"><use href="#ic-unlock"/></svg>Tout libérer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL TABLE ────────────────────────────────────────────────────────── -->
+<div class="mo" id="mo" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="mh">
+      <div class="mt" id="m-title"><svg width="16" height="16" style="stroke:var(--gold)"><use href="#ic-utensils"/></svg>Table</div>
+      <button class="mc" onclick="closeModal()"><svg width="13" height="13"><use href="#ic-x"/></svg></button>
+    </div>
+    <div class="sec-lbl">Statut</div>
+    <div class="ssel">
+      <div class="sopt" onclick="selSt('libre')" id="op-libre"><svg width="19" height="19"><use href="#ic-check-circle"/></svg><span>Libre</span></div>
+      <div class="sopt" onclick="selSt('occupee')" id="op-occupee"><svg width="19" height="19"><use href="#ic-users"/></svg><span>Occupée</span></div>
+      <div class="sopt" onclick="selSt('reservee')" id="op-reservee"><svg width="19" height="19"><use href="#ic-calendar"/></svg><span>Réservée</span></div>
+      <div class="sopt" onclick="selSt('nettoyage')" id="op-nettoyage"><svg width="19" height="19"><use href="#ic-sparkles"/></svg><span>Nettoyage</span></div>
+    </div>
+    <div class="div"></div>
+    <div id="hotel-box" style="display:none"></div>
+    <div id="conflict-warn" style="display:none"></div>
+    <div class="r2">
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-user"/></svg>Client</label><input type="text" class="fi" id="f-client" placeholder="M. Dupont"></div>
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-key"/></svg>Chambre</label><input type="text" class="fi" id="f-room" placeholder="204" oninput="checkConflictLive()"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-floor"/></svg>Étage</label><input type="text" class="fi" id="f-floor" placeholder="2"></div>
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-users"/></svg>Personnes</label><input type="number" class="fi" id="f-pax" placeholder="2" min="1"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-calendar"/></svg>Arrivée</label><input type="date" class="fi" id="f-arrive" onchange="updateHotelBox()"></div>
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-logout"/></svg>Départ</label><input type="date" class="fi" id="f-depart" onchange="updateHotelBox()"></div>
+    </div>
+    <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-note"/></svg>Note</label><input type="text" class="fi" id="f-note" placeholder="Allergie, anniversaire…"></div>
+    <div class="ma">
+      <button class="btn-m" onclick="closeModal()"><svg width="13" height="13"><use href="#ic-x"/></svg>Annuler</button>
+      <button class="btn-m btn-danger" id="btn-lib" onclick="liberateTable()" style="display:none"><svg width="13" height="13"><use href="#ic-unlock"/></svg>Libérer</button>
+      <button class="btn-m btn-mp" onclick="saveTable()"><svg width="13" height="13"><use href="#ic-save"/></svg>Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL ADD TABLE ───────────────────────────────────────────────────── -->
+<div class="mo" id="mo-add" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal" style="width:330px;">
+    <div class="mh">
+      <div class="mt"><svg width="16" height="16" style="stroke:var(--gold)"><use href="#ic-plus"/></svg>Nouvelle Table</div>
+      <button class="mc" onclick="closeAddModal()"><svg width="13" height="13"><use href="#ic-x"/></svg></button>
+    </div>
+    <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-utensils"/></svg>Numéro</label><input type="number" class="fi" id="add-num"></div>
+    <div class="r2">
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-users"/></svg>Capacité</label><input type="number" class="fi" id="add-cap" value="4" min="1"></div>
+      <div class="fg"><label class="fl"><svg width="10" height="10"><use href="#ic-layers"/></svg>Zone</label>
+        <select class="fi" id="add-zone">
+          <option value="salle">Salle</option>
+          <option value="terrasse">Terrasse</option>
+          <option value="vip">VIP</option>
+        </select>
+      </div>
+    </div>
+    <div class="ma">
+      <button class="btn-m" onclick="closeAddModal()"><svg width="13" height="13"><use href="#ic-x"/></svg>Annuler</button>
+      <button class="btn-m btn-mp" onclick="confirmAddTable()"><svg width="13" height="13"><use href="#ic-plus"/></svg>Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg width="13" height="13" id="toast-ic"><use href="#ic-check"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+/* ─── DATA ──────────────────────────────────────────────────────────────────── */
+const LS_T='hotel_tables_v4',LS_A='hotel_acts_v4';
+const DEFS=[
+  {id:1,zone:'salle',capacity:2},{id:2,zone:'salle',capacity:4},{id:3,zone:'salle',capacity:4},
+  {id:4,zone:'salle',capacity:6},{id:5,zone:'salle',capacity:2},{id:6,zone:'salle',capacity:4},
+  {id:7,zone:'terrasse',capacity:2},{id:8,zone:'terrasse',capacity:4},{id:9,zone:'terrasse',capacity:4},
+  {id:10,zone:'terrasse',capacity:6},{id:11,zone:'terrasse',capacity:2},{id:12,zone:'terrasse',capacity:4},
+  {id:13,zone:'vip',capacity:6},{id:14,zone:'vip',capacity:8},{id:15,zone:'vip',capacity:4},{id:16,zone:'vip',capacity:2}
+].map(t=>({...t,status:'libre',client:'',room:'',floor:'',pax:'',arrive:'',depart:'',note:''}));
+
+function loadTables(){try{const d=localStorage.getItem(LS_T);return d?JSON.parse(d):JSON.parse(JSON.stringify(DEFS));}catch{return JSON.parse(JSON.stringify(DEFS));}}
+function saveTables(){try{localStorage.setItem(LS_T,JSON.stringify(tables));}catch(e){}}
+function loadActs(){try{const d=localStorage.getItem(LS_A);return d?JSON.parse(d):[];}catch{return [];}}
+function saveActs(){try{localStorage.setItem(LS_A,JSON.stringify(acts.slice(0,60)));}catch(e){}}
+
+let tables=loadTables(), acts=loadActs();
+let cF='all', cZ='all', editId=null, curSt='libre';
+let isMobile=()=>window.innerWidth<1024;
+
+const ZIC={salle:'ic-grid',terrasse:'ic-sun',vip:'ic-star'};
+const ZCL={salle:'var(--muted)',terrasse:'var(--nettoyage-t)',vip:'var(--gold)'};
+const SLBL={libre:'Libre',occupee:'Occupée',reservee:'Réservée',nettoyage:'Nettoyage'};
+const SICO={libre:'ic-check-circle',occupee:'ic-users',reservee:'ic-calendar',nettoyage:'ic-sparkles',depart:'ic-logout'};
+const SCL={libre:'var(--libre-t)',occupee:'var(--occupee-t)',reservee:'var(--reservee-t)',nettoyage:'var(--nettoyage-t)',depart:'var(--depart-t)'};
+
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtDate(d){if(!d)return '—';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
+function nights(a,d){if(!a||!d)return 0;return Math.max(0,Math.round((new Date(d)-new Date(a))/86400000));}
+function isDep(t){return t.depart===today()&&(t.status==='occupee'||t.status==='reservee');}
+
+/* ─── VIEW SWITCHING (mobile) ────────────────────────────────────────────── */
+function switchView(name, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='tables') renderTables();
+  if(name==='clients') renderClients();
+  if(name==='activity') renderActs();
+}
+
+/* ─── DESKTOP TOGGLE ────────────────────────────────────────────────────── */
+function applyLayout(){
+  const desk=!isMobile();
+  // On desktop: show all views inline, hide mobile view switcher
+  document.querySelectorAll('.view').forEach(v=>{
+    v.style.display = desk ? 'block' : '';
+    if(desk) v.classList.add('active');
+  });
+  document.getElementById('desktopExtra').style.display = desk ? 'flex' : 'none';
+  if(desk){ renderTables(); renderClientsD(); renderActsD(); }
+}
+window.addEventListener('resize',applyLayout);
+
+/* ─── DRAWER ─────────────────────────────────────────────────────────────── */
+function openDrawer(){document.getElementById('drawerOverlay').classList.add('open');document.getElementById('drawer').classList.add('open');document.body.style.overflow='hidden';}
+function closeDrawer(){document.getElementById('drawerOverlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';}
+
+/* ─── RENDER TABLES ──────────────────────────────────────────────────────── */
+function renderTables(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase().trim();
+  const grid=document.getElementById('tablesGrid');
+  const vis=tables.filter(t=>{
+    const mS=cF==='all'||(cF==='depart'?isDep(t):t.status===cF);
+    const mZ=cZ==='all'||t.zone===cZ;
+    const mQ=!q||String(t.id).includes(q)||(t.client||'').toLowerCase().includes(q)||(t.room||'').toLowerCase().includes(q);
+    return mS&&mZ&&mQ;
+  });
+  grid.innerHTML=vis.length ? vis.map(t=>{
+    const dep=isDep(t);const cls=dep?'depart-today':t.status;
+    return`<div class="tc ${cls}" onclick="openModal(${t.id})">
+      <div class="sdot"></div>
+      ${dep?`<div class="dep-flag"><svg width="7" height="7" style="stroke:var(--depart-t)"><use href="#ic-logout"/></svg>DÉP.</div>`:''}
+      <div class="t-zic"><svg width="20" height="20" style="stroke:${ZCL[t.zone]}"><use href="#${ZIC[t.zone]}"/></svg></div>
+      <div class="t-num">T${t.id}</div>
+      <div class="t-cap"><svg width="9" height="9" style="stroke:var(--muted)"><use href="#ic-users"/></svg>${t.capacity}</div>
+      <div class="t-cli">${t.client||(t.room?'Ch.'+t.room:SLBL[t.status])}</div>
+      ${(t.arrive||t.depart)?`<div class="t-dates"><svg width="8" height="8" style="stroke:var(--muted)"><use href="#ic-calendar"/></svg>${fmtDate(t.arrive)}<svg width="7" height="7" style="stroke:var(--muted)"><use href="#ic-arrow-right"/></svg>${fmtDate(t.depart)}</div>`:''}
+    </div>`;
+  }).join('') : '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:2.5rem;font-size:.88rem">Aucune table trouvée</div>';
+  updateStats();renderDeps();
+}
+
+/* ─── STATS ───────────────────────────────────────────────────────────────── */
+function updateStats(){
+  const c={all:tables.length,libre:0,occupee:0,reservee:0,nettoyage:0,depart:0};
+  tables.forEach(t=>{c[t.status]++;if(isDep(t))c.depart++;});
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  s('s-total',c.all);s('s-libre',c.libre);s('s-occupee',c.occupee);s('s-reservee',c.reservee);s('s-depart',c.depart);
+  s('ms-total',c.all);s('ms-libre',c.libre);s('ms-occupee',c.occupee);s('ms-reservee',c.reservee);s('ms-depart',c.depart);
+  ['all','libre','occupee','reservee','nettoyage','depart'].forEach(k=>{s('c-'+k,c[k]||0);s('dc-'+k,c[k]||0);});
+}
+
+/* ─── CLIENTS ────────────────────────────────────────────────────────────── */
+function clientsHTML(bodyId,countId){
+  const body=document.getElementById(bodyId);if(!body)return;
+  const list=tables.filter(t=>t.client&&t.status!=='libre'&&t.status!=='nettoyage');
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=`${v} client${v!==1?'s':''}`;};
+  s(countId,list.length);
+  if(!list.length){body.innerHTML='<tr class="empty-row"><td colspan="8">Aucun client enregistré</td></tr>';return;}
+  list.sort((a,b)=>(a.depart||'9').localeCompare(b.depart||'9'));
+  body.innerHTML=list.map(t=>{
+    const dep=isDep(t);const n=nights(t.arrive,t.depart);const st=dep?'depart':t.status;
+    return`<tr>
+      <td><strong style="color:var(--gold);font-family:'Playfair Display',serif">T${t.id}</strong></td>
+      <td><strong>${t.client}</strong>${t.note?`<div style="font-size:.67rem;color:var(--muted)">${t.note}</div>`:''}</td>
+      <td>${t.room?`<span style="display:inline-flex;align-items:center;gap:3px"><svg width="11" height="11" style="stroke:var(--gold)"><use href="#ic-key"/></svg><strong>${t.room}</strong>${t.floor?`<small style="color:var(--muted)"> Ét.${t.floor}</small>`:''}</span>`:'—'}</td>
+      <td>${fmtDate(t.arrive)}</td>
+      <td style="color:${dep?'var(--depart-t)':'inherit'};font-weight:${dep?'600':'400'}">${fmtDate(t.depart)}${dep?` <svg width="11" height="11" style="stroke:var(--depart-t);vertical-align:middle"><use href="#ic-alert"/></svg>`:''}</td>
+      <td>${n>0?`<span class="nights-badge"><svg width="10" height="10" style="stroke:var(--gold)"><use href="#ic-moon"/></svg>${n}n</span>`:'—'}</td>
+      <td><span class="badge badge-${st}"><svg width="9" height="9" style="stroke:${SCL[st]}"><use href="#${SICO[st]}"/></svg>${dep?'Départ':SLBL[t.status]}</span></td>
+      <td><button class="tact-btn" onclick="openModal(${t.id})"><svg width="11" height="11" style="stroke:var(--muted)"><use href="#ic-edit"/></svg>Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+function renderClients(){clientsHTML('clientsBody','clients-count');}
+function renderClientsD(){clientsHTML('clientsBodyD','clients-count-d');}
+
+/* ─── DEPARTURES ─────────────────────────────────────────────────────────── */
+function depHTML(elId){
+  const el=document.getElementById(elId);if(!el)return;
+  const deps=tables.filter(t=>isDep(t));
+  if(!deps.length){el.innerHTML='<div class="dep-empty"><svg width="13" height="13" style="stroke:var(--libre-t)"><use href="#ic-check-circle"/></svg>Aucun départ aujourd\'hui</div>';return;}
+  el.innerHTML='<div class="dep-list">'+deps.map(t=>`
+    <div class="dep-item" onclick="openModal(${t.id})">
+      <div class="dep-badge">T${t.id}</div>
+      <div class="dep-info">
+        <div class="dep-name">${t.client}</div>
+        <div class="dep-room"><svg width="9" height="9" style="stroke:var(--muted)"><use href="#ic-key"/></svg>${t.room?'Ch.'+t.room:t.zone}</div>
+      </div>
+      <svg width="13" height="13" style="stroke:var(--depart-t)"><use href="#ic-logout"/></svg>
+    </div>`).join('')+'</div>';
+}
+function renderDeps(){depHTML('dep-sb');depHTML('dep-drawer');}
+
+/* ─── MODAL ──────────────────────────────────────────────────────────────── */
+function openModal(id){
+  editId=id;
+  const t=tables.find(x=>x.id===id);
+  document.getElementById('m-title').innerHTML=`<svg width="16" height="16" style="stroke:${ZCL[t.zone]}"><use href="#${ZIC[t.zone]}"/></svg> T${id} — ${t.zone.charAt(0).toUpperCase()+t.zone.slice(1)}`;
+  curSt=t.status;
+  document.getElementById('f-client').value=t.client||'';
+  document.getElementById('f-room').value=t.room||'';
+  document.getElementById('f-floor').value=t.floor||'';
+  document.getElementById('f-pax').value=t.pax||'';
+  document.getElementById('f-arrive').value=t.arrive||'';
+  document.getElementById('f-depart').value=t.depart||'';
+  document.getElementById('f-note').value=t.note||'';
+  document.getElementById('btn-lib').style.display=(t.client&&t.status!=='libre')?'flex':'none';
+  document.getElementById('conflict-warn').style.display='none';
+  updateSOpts();updateHotelBox();
+  document.getElementById('mo').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('mo').classList.remove('open');document.body.style.overflow='';editId=null;}
+function closeModalOutside(e){if(e.target===document.getElementById('mo'))closeModal();}
+function selSt(s){curSt=s;updateSOpts();}
+function updateSOpts(){
+  ['libre','occupee','reservee','nettoyage'].forEach(s=>{
+    document.getElementById('op-'+s).className='sopt'+(s===curSt?' sel-'+s:'');
+  });
+}
+function updateHotelBox(){
+  const a=document.getElementById('f-arrive').value,d=document.getElementById('f-depart').value;
+  const box=document.getElementById('hotel-box');
+  if(a&&d){
+    const n=nights(a,d);const dep=d===today();
+    box.style.display='block';
+    box.innerHTML=`<div class="hotel-box">
+      <div class="hotel-row"><span><svg width="10" height="10"><use href="#ic-calendar"/></svg>Arrivée</span><span>${fmtDate(a)}</span></div>
+      <div class="hotel-row"><span><svg width="10" height="10"><use href="#ic-logout"/></svg>Départ</span><span style="${dep?'color:var(--depart-t)':''}">${fmtDate(d)}${dep?' — Aujourd\'hui':''}</span></div>
+      ${n>0?`<div style="margin-top:5px"><span class="nights-badge"><svg width="10" height="10" style="stroke:var(--gold)"><use href="#ic-moon"/></svg>${n} nuit${n>1?'s':''}</span></div>`:''}
+    </div>`;
+  } else {box.style.display='none';}
+}
+function checkConflictLive(){
+  const room=document.getElementById('f-room').value.trim();
+  const w=document.getElementById('conflict-warn');
+  if(room){
+    const c=tables.find(x=>x.id!==editId&&x.room===room&&x.client&&(x.status==='occupee'||x.status==='reservee'));
+    if(c){w.style.display='flex';w.innerHTML=`<div class="warn-box"><svg width="13" height="13" style="stroke:var(--occupee-t);flex-shrink:0"><use href="#ic-alert"/></svg><span>Chambre <strong>${room}</strong> déjà assignée à <strong>T${c.id}</strong> (${c.client}).</span></div>`;}
+    else w.style.display='none';
+  } else w.style.display='none';
+}
+function saveTable(){
+  const t=tables.find(x=>x.id===editId);
+  const room=document.getElementById('f-room').value.trim();
+  const client=document.getElementById('f-client').value.trim();
+  if(room&&client&&(curSt==='occupee'||curSt==='reservee')){
+    const c=tables.find(x=>x.id!==editId&&x.room===room&&x.client&&(x.status==='occupee'||x.status==='reservee'));
+    if(c){
+      const w=document.getElementById('conflict-warn');w.style.display='flex';
+      w.innerHTML=`<div class="warn-box"><svg width="13" height="13" style="stroke:var(--occupee-t);flex-shrink:0"><use href="#ic-alert"/></svg><span>Chambre <strong>${room}</strong> assignée à <strong>T${c.id}</strong>. Chaque client n'a qu'une seule table.</span></div>`;
+      return;
+    }
+  }
+  const oldSt=t.status;
+  t.status=curSt;t.client=client;t.room=room;
+  t.floor=document.getElementById('f-floor').value.trim();
+  t.pax=document.getElementById('f-pax').value;
+  t.arrive=document.getElementById('f-arrive').value;
+  t.depart=document.getElementById('f-depart').value;
+  t.note=document.getElementById('f-note').value.trim();
+  saveTables();closeModal();
+  renderTables();if(!isMobile()){renderClientsD();renderActsD();}else renderClients();
+  logAct(t.id,client||SLBL[curSt],oldSt,curSt);
+  showToast('ic-check','var(--libre-t)',`T${t.id} — ${client||SLBL[curSt]}`);
+}
+function liberateTable(){
+  const t=tables.find(x=>x.id===editId);
+  const old=t.status,oc=t.client;
+  t.status='libre';t.client='';t.room='';t.floor='';t.pax='';t.arrive='';t.depart='';t.note='';
+  saveTables();closeModal();
+  renderTables();if(!isMobile()){renderClientsD();renderActsD();}else renderClients();
+  logAct(t.id,`Libération — ${oc}`,old,'libre');
+  showToast('ic-unlock','var(--libre-t)',`T${t.id} libérée`);
+}
+
+/* ─── ADD TABLE ──────────────────────────────────────────────────────────── */
+function openAddTable(){
+  document.getElementById('add-num').value=tables.reduce((m,t)=>Math.max(m,t.id),0)+1;
+  document.getElementById('mo-add').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAddModal(){document.getElementById('mo-add').classList.remove('open');document.body.style.overflow='';}
+function confirmAddTable(){
+  const num=parseInt(document.getElementById('add-num').value);
+  const cap=parseInt(document.getElementById('add-cap').value)||4;
+  const zone=document.getElementById('add-zone').value;
+  if(!num||tables.find(t=>t.id===num)){showToast('ic-alert','var(--occupee-t)','Numéro invalide ou déjà utilisé');return;}
+  tables.push({id:num,zone,capacity:cap,status:'libre',client:'',room:'',floor:'',pax:'',arrive:'',depart:'',note:''});
+  tables.sort((a,b)=>a.id-b.id);
+  saveTables();closeAddModal();renderTables();
+  showToast('ic-check','var(--libre-t)',`Table ${num} ajoutée`);
+}
+
+/* ─── BULK ACTIONS ───────────────────────────────────────────────────────── */
+function autoCheckDeparts(){
+  const n=tables.filter(t=>isDep(t)).length;
+  renderTables();
+  showToast(n?'ic-alert':'ic-check',n?'var(--depart-t)':'var(--libre-t)',n?`${n} départ${n>1?'s':''} aujourd'hui`:"Aucun départ aujourd'hui");
+}
+function markAllNettoyage(){
+  let n=0;tables.forEach(t=>{if(t.status==='occupee'){t.status='nettoyage';n++;}});
+  saveTables();renderTables();showToast('ic-sparkles','var(--nettoyage-t)',`${n} table${n>1?'s':''} en nettoyage`);
+}
+function resetAll(){
+  if(!confirm('Libérer TOUTES les tables ?'))return;
+  tables.forEach(t=>{t.status='libre';t.client='';t.room='';t.floor='';t.pax='';t.arrive='';t.depart='';t.note='';});
+  saveTables();renderTables();showToast('ic-unlock','var(--libre-t)','Toutes les tables libérées');
+}
+
+/* ─── FILTERS ─────────────────────────────────────────────────────────────── */
+function filterStatus(s,el){
+  cF=s;
+  document.querySelectorAll('.leg').forEach(i=>i.classList.remove('active'));
+  // highlight matching legs in sidebar + drawer
+  document.querySelectorAll('.leg').forEach(i=>{
+    if(i.onclick&&i.onclick.toString().includes(`'${s}'`))i.classList.add('active');
+  });
+  el.classList.add('active');
+  renderTables();if(isMobile())switchView('tables',document.getElementById('bn-tables'));
+}
+function filterZone(z,el){
+  cZ=z;
+  document.querySelectorAll('.zone-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTables();if(isMobile())switchView('tables',document.getElementById('bn-tables'));
+}
+
+/* ─── ACTIVITY ────────────────────────────────────────────────────────────── */
+function logAct(id,label,from,to){
+  const now=new Date();
+  acts.unshift({id,label,time:now.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),from,to});
+  if(acts.length>60)acts.pop();
+  saveActs();
+  if(!isMobile())renderActsD();else renderActs();
+}
+function actsHTML(listId,countId){
+  const el=document.getElementById(listId);const ce=document.getElementById(countId);if(!el)return;
+  if(ce)ce.textContent=`${acts.length} événement${acts.length!==1?'s':''}`;
+  if(!acts.length){el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:.8rem;padding:1.25rem 0">Aucune activité</div>';return;}
+  el.innerHTML=acts.map(a=>{
+    const fic=SICO[a.from]||'ic-check-circle';const tic=SICO[a.to]||'ic-check-circle';
+    return`<div class="act-item">
+      <div class="act-tb">T${a.id}</div>
+      <div class="act-d">
+        <div class="act-n">${a.label}</div>
+        <div class="act-t">
+          <svg width="9" height="9" style="stroke:var(--muted)"><use href="#${fic}"/></svg>${SLBL[a.from]||a.from}
+          <svg width="9" height="9" style="stroke:var(--muted)"><use href="#ic-arrow-right"/></svg>
+          <svg width="9" height="9" style="stroke:var(--muted)"><use href="#${tic}"/></svg>${SLBL[a.to]||a.to}
+        </div>
+      </div>
+      <div class="act-time">${a.time}</div>
+    </div>`;
+  }).join('');
+}
+function renderActs(){actsHTML('actList','act-count');}
+function renderActsD(){actsHTML('actListD','act-count-d');}
+
+/* ─── TOAST ───────────────────────────────────────────────────────────────── */
+let ttm;
+function showToast(icId,col,msg){
+  clearTimeout(ttm);
+  document.getElementById('toast-ic').innerHTML=`<use href="#${icId}"/>`;
+  document.getElementById('toast-ic').style.stroke=col;
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast').classList.add('show');
+  ttm=setTimeout(()=>document.getElementById('toast').classList.remove('show'),2800);
+}
+
+/* ─── CLOCK ───────────────────────────────────────────────────────────────── */
+function tick(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('hdr-day').textContent=now.getDate();
+  document.getElementById('hdr-date').textContent=now.toLocaleDateString('fr-FR',{weekday:'short',month:'long',year:'numeric'});
+}
+setInterval(tick,1000);tick();
+
+/* ─── INIT ────────────────────────────────────────────────────────────────── */
+applyLayout();
+renderTables();
+renderActs();renderActsD();
+</script>
+</body>
+</html>
